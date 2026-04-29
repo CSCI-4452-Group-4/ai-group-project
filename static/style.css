@@ -1,88 +1,137 @@
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=IM+Fell+English:ital@0;1&display=swap");
+
 :root {
     --gold: #f6c76b;
-    --gold-soft: #ffe3a3;
-    --purple: #8b5cf6;
-    --purple-bright: #a855f7;
-    --ink: #090718;
-    --panel: rgba(12, 9, 32, 0.82);
-    --panel-light: rgba(31, 22, 68, 0.78);
-    --border: rgba(246, 199, 107, 0.55);
-    --text: #f8f4ff;
-    --muted: #d8c9ff;
-    --shadow: 0 0 35px rgba(0, 0, 0, 0.65);
+    --gold-bright: #ffe6a8;
+    --violet: #8b5cf6;
+    --violet-bright: #c084fc;
+    --deep-blue: #07081c;
+    --midnight: rgba(8, 7, 28, 0.84);
+    --panel: rgba(13, 10, 36, 0.82);
+    --panel-light: rgba(37, 25, 79, 0.68);
+    --border: rgba(255, 218, 136, 0.58);
+    --text: #f8f2ff;
+    --muted: #d9c9ff;
+    --danger: #ff9b9b;
+    --shadow: 0 18px 50px rgba(0, 0, 0, 0.65);
+    --glow: 0 0 28px rgba(246, 199, 107, 0.45);
 }
 
 * {
     box-sizing: border-box;
 }
 
-html, body {
-    margin: 0;
+html {
     min-height: 100%;
 }
 
 body {
-    font-family: Georgia, "Times New Roman", serif;
+    margin: 0;
+    min-height: 100vh;
+    padding: 2rem;
     color: var(--text);
+    font-family: "IM Fell English", Georgia, serif;
     background:
-        linear-gradient(rgba(8, 5, 25, 0.35), rgba(8, 5, 25, 0.7)),
+        radial-gradient(circle at 50% 20%, rgba(192, 132, 252, 0.24), transparent 34%),
+        linear-gradient(rgba(7, 8, 28, 0.25), rgba(7, 8, 28, 0.82)),
         url("/static/images/fantasy-bg.png");
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    padding: 2rem;
 }
 
+/* dark enchanted overlay */
 body::before {
     content: "";
     position: fixed;
     inset: 0;
-    background: radial-gradient(circle at center, rgba(139, 92, 246, 0.18), rgba(0, 0, 0, 0.65));
     pointer-events: none;
+    background:
+        radial-gradient(circle at top left, rgba(246, 199, 107, 0.15), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(139, 92, 246, 0.18), transparent 35%),
+        rgba(0, 0, 0, 0.18);
+    z-index: -2;
+}
+
+/* soft vignette */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 180px rgba(0, 0, 0, 0.92);
     z-index: -1;
 }
 
 h1 {
+    font-family: "Cinzel", serif;
     text-align: center;
-    font-size: 3rem;
-    color: var(--gold-soft);
-    text-shadow: 0 0 18px rgba(246, 199, 107, 0.8);
-    letter-spacing: 2px;
-    margin-bottom: 1rem;
+    font-size: clamp(2.4rem, 6vw, 5rem);
+    margin: 0.5rem 0 1.2rem;
+    color: var(--gold-bright);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-shadow:
+        0 0 12px rgba(246, 199, 107, 0.9),
+        0 0 34px rgba(139, 92, 246, 0.65),
+        0 5px 12px rgba(0, 0, 0, 0.9);
+}
+
+h1::after {
+    content: "✦  Unleash your imagination  ✦";
+    display: block;
+    margin-top: 0.35rem;
+    font-family: "IM Fell English", Georgia, serif;
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    text-transform: none;
 }
 
 h2 {
+    font-family: "Cinzel", serif;
     color: var(--gold);
     text-align: center;
-    text-shadow: 0 0 10px rgba(246, 199, 107, 0.45);
+    letter-spacing: 0.06em;
+    text-shadow: var(--glow);
 }
 
 nav {
     max-width: 900px;
-    margin: 0 auto 2rem auto;
-    padding: 1rem 1.5rem;
-    background: rgba(20, 13, 48, 0.78);
+    margin: 0 auto 1.7rem;
+    padding: 0.9rem 1.5rem;
+    text-align: center;
+    background:
+        linear-gradient(135deg, rgba(54, 38, 102, 0.86), rgba(11, 8, 33, 0.82));
     border: 1px solid var(--border);
     border-radius: 999px;
-    text-align: center;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(8px);
+    box-shadow: var(--shadow), inset 0 0 24px rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(10px);
 }
 
 nav a {
-    color: var(--gold-soft);
+    margin: 0 1rem;
+    color: var(--gold-bright);
     text-decoration: none;
-    font-weight: bold;
-    margin: 0 0.75rem;
+    font-family: "Cinzel", serif;
+    font-weight: 700;
+    transition: 0.25s ease;
+}
+
+nav a::before {
+    content: "✧ ";
 }
 
 nav a:hover {
     color: white;
-    text-shadow: 0 0 12px var(--gold);
+    text-shadow:
+        0 0 10px var(--gold),
+        0 0 22px var(--violet-bright);
 }
 
 nav span {
     color: var(--muted);
+    margin-left: 1rem;
 }
 
 hr {
@@ -91,81 +140,149 @@ hr {
 
 form,
 p[style],
-ul,
-.story-panel {
+ul {
+    position: relative;
     max-width: 900px;
-    margin: 1.5rem auto;
-    padding: 1.5rem;
-    background: var(--panel);
+    margin: 1.4rem auto;
+    padding: 1.7rem;
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.06), transparent 22%),
+        linear-gradient(135deg, var(--panel), rgba(9, 8, 30, 0.88));
     border: 1px solid var(--border);
-    border-radius: 18px;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(8px);
+    border-radius: 20px;
+    box-shadow:
+        var(--shadow),
+        inset 0 0 28px rgba(255, 255, 255, 0.045);
+    backdrop-filter: blur(12px);
 }
 
-form {
-    text-align: center;
+/* ornate corner accents */
+form::before,
+form::after,
+p[style]::before,
+p[style]::after,
+ul::before,
+ul::after {
+    position: absolute;
+    color: var(--gold);
+    font-size: 1.4rem;
+    opacity: 0.85;
+}
+
+form::before,
+p[style]::before,
+ul::before {
+    content: "✦";
+    top: -0.75rem;
+    left: 1rem;
+}
+
+form::after,
+p[style]::after,
+ul::after {
+    content: "✦";
+    bottom: -0.75rem;
+    right: 1rem;
 }
 
 label {
     display: block;
-    color: var(--gold);
+    margin-bottom: 0.8rem;
+    color: var(--gold-bright);
+    font-family: "Cinzel", serif;
     font-size: 1.25rem;
-    font-weight: bold;
-    margin-bottom: 0.75rem;
+    letter-spacing: 0.04em;
 }
 
 textarea,
 input[type="text"],
 input[type="password"] {
     width: 100%;
-    max-width: 760px;
-    padding: 1rem;
+    max-width: 780px;
+    padding: 1rem 1.1rem;
     color: var(--text);
-    background: rgba(7, 5, 20, 0.85);
-    border: 1px solid rgba(246, 199, 107, 0.45);
-    border-radius: 12px;
-    font-size: 1rem;
+    font-family: "IM Fell English", Georgia, serif;
+    font-size: 1.1rem;
+    background:
+        linear-gradient(180deg, rgba(5, 4, 18, 0.9), rgba(18, 10, 45, 0.88));
+    border: 1px solid rgba(255, 218, 136, 0.42);
+    border-radius: 14px;
     outline: none;
+    box-shadow: inset 0 0 22px rgba(0, 0, 0, 0.42);
+}
+
+textarea {
+    min-height: 170px;
+    resize: vertical;
+}
+
+textarea::placeholder,
+input::placeholder {
+    color: rgba(217, 201, 255, 0.65);
+    font-style: italic;
 }
 
 textarea:focus,
 input:focus {
-    border-color: var(--gold);
-    box-shadow: 0 0 18px rgba(246, 199, 107, 0.45);
+    border-color: var(--gold-bright);
+    box-shadow:
+        0 0 22px rgba(246, 199, 107, 0.45),
+        inset 0 0 18px rgba(139, 92, 246, 0.3);
 }
 
 button {
     margin-top: 1rem;
-    padding: 0.9rem 2rem;
+    padding: 0.95rem 2.3rem;
     color: white;
-    font-size: 1rem;
-    font-weight: bold;
-    letter-spacing: 1px;
-    border: 1px solid var(--gold);
+    font-family: "Cinzel", serif;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    border: 1px solid var(--gold-bright);
     border-radius: 999px;
     cursor: pointer;
-    background: linear-gradient(135deg, var(--purple), var(--purple-bright));
+    background:
+        linear-gradient(135deg, #5b21b6, #9333ea 45%, #f6c76b);
     box-shadow:
-        0 0 18px rgba(168, 85, 247, 0.75),
-        inset 0 0 8px rgba(255, 255, 255, 0.25);
+        0 0 24px rgba(147, 51, 234, 0.75),
+        inset 0 0 12px rgba(255, 255, 255, 0.22);
+    transition: 0.25s ease;
+}
+
+button::before {
+    content: "✦ ";
 }
 
 button:hover {
-    transform: translateY(-2px);
+    transform: translateY(-2px) scale(1.02);
     box-shadow:
-        0 0 28px rgba(246, 199, 107, 0.75),
-        inset 0 0 8px rgba(255, 255, 255, 0.25);
+        0 0 32px rgba(246, 199, 107, 0.85),
+        0 0 48px rgba(147, 51, 234, 0.55),
+        inset 0 0 12px rgba(255, 255, 255, 0.28);
+}
+
+p {
+    line-height: 1.75;
+    font-size: 1.12rem;
 }
 
 img {
-    display: block;
-    max-width: 300px;
-    width: 100%;
-    margin: 1rem auto;
+    display: inline-block;
+    width: 220px;
+    max-width: 90%;
+    margin: 1rem;
     border: 1px solid var(--border);
-    border-radius: 14px;
-    box-shadow: var(--shadow);
+    border-radius: 16px;
+    box-shadow:
+        0 12px 35px rgba(0, 0, 0, 0.7),
+        0 0 18px rgba(246, 199, 107, 0.3);
+    transition: 0.25s ease;
+}
+
+img:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow:
+        0 16px 42px rgba(0, 0, 0, 0.8),
+        0 0 28px rgba(246, 199, 107, 0.65);
 }
 
 ul {
@@ -173,25 +290,25 @@ ul {
 }
 
 li {
-    padding: 0.75rem;
-    border-bottom: 1px solid rgba(246, 199, 107, 0.25);
+    padding: 0.9rem 0.5rem;
+    border-bottom: 1px solid rgba(246, 199, 107, 0.24);
+}
+
+li:last-child {
+    border-bottom: none;
 }
 
 li a,
 p a {
-    color: var(--gold-soft);
+    color: var(--gold-bright);
     text-decoration: none;
+    font-weight: bold;
 }
 
 li a:hover,
 p a:hover {
     color: white;
-    text-shadow: 0 0 10px var(--gold);
-}
-
-p {
-    line-height: 1.7;
-    font-size: 1.05rem;
+    text-shadow: 0 0 12px var(--gold);
 }
 
 @media (max-width: 768px) {
@@ -200,17 +317,24 @@ p {
         background-attachment: scroll;
     }
 
-    h1 {
-        font-size: 2.1rem;
-    }
-
     nav {
-        border-radius: 18px;
+        border-radius: 20px;
     }
 
     nav a,
     nav span {
         display: block;
-        margin: 0.5rem 0;
+        margin: 0.55rem 0;
+    }
+
+    form,
+    p[style],
+    ul {
+        padding: 1.2rem;
+    }
+
+    img {
+        display: block;
+        margin: 1rem auto;
     }
 }
