@@ -225,38 +225,55 @@ def generate_images_from_story(story):
 
     for i, label in enumerate(labels):
         start = story.find(label)
+
         if start == -1:
             continue
 
         end = len(story)
+
         for next_label in labels[i + 1:]:
-            idx = story.find(next_label)
-            if idx != -1:
-                end = idx
+            next_start = story.find(next_label)
+
+            if next_start != -1:
+                end = next_start
                 break
 
         paragraph = story[start:end].replace(label, "").strip()
 
-        if not paragraph or not is_safe_prompt(paragraph):
+        if not paragraph:
             continue
+
+        if not is_safe_prompt(paragraph):
+            continue
+
+        image_prompt = f"""
+Create a detailed storybook-style image based on this paragraph:
+
+{paragraph}
+
+The image should match the setting, characters, mood, and action of the paragraph.
+Keep the image school-appropriate and PG.
+Do not include words, captions, labels, or text in the image.
+"""
 
         try:
             response = gemini_client.models.generate_images(
                 model="imagen-4.0-generate-001",
-                prompt=paragraph,
-                config=types.GenerateImagesConfig(number_of_images=1)
+                prompt=image_prompt,
+                config=types.GenerateImagesConfig(
+                    number_of_images=1,
+                    aspect_ratio="1:1"
+                )
             )
 
             image = response.generated_images[0].image
 
-            # Convert to bytes
             image_bytes = BytesIO()
             image.save(image_bytes, format="PNG")
             image_bytes = image_bytes.getvalue()
 
-            file_name = f"{uuid.uuid4().hex}.png"
+            file_name = f"{label.replace(':', '').replace(' ', '_').lower()}_{uuid.uuid4().hex}.png"
 
-            # Upload to Supabase bucket
             supabase.storage.from_("story-images").upload(
                 file_name,
                 image_bytes,
@@ -268,7 +285,8 @@ def generate_images_from_story(story):
             image_paths.append(public_url)
 
         except Exception as e:
-            print("Image error:", e)
+            print(f"ERROR GENERATING IMAGE FOR {label}: {str(e)}")
+            image_paths.append(f"ERROR: {str(e)}")
 
     return image_paths
 
