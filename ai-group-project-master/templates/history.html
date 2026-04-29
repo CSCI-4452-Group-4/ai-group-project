@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>{{ session.get("username") }}'s Story History</h2>
+
+    {% if stories %}
+        <ul>
+            {% for story in stories %}
+                <li>
+                    <a href="{{ url_for('view_story', story_id=story[0]) }}">{{ story[1] }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No saved stories yet.</p>
+    {% endif %}
+{% endblock %}
