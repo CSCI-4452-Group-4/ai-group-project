@@ -14,4 +14,14 @@
         <h2>Generated Story</h2>
         <p style="white-space: pre-wrap;">{{ story }}</p>
     {% endif %}
+
+    {% if image_paths %}
+        <hr>
+        <h2>Generated Images</h2>
+
+        {% for image in image_paths %}
+            <img src="{{ image }}" width="300" style="margin-bottom: 20px;">
+            <br>
+        {% endfor %}
+    {% endif %}
 {% endblock %}
