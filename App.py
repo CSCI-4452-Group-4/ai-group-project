@@ -1,12 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from openai import OpenAI
-from google import genai
-from google.genai import types
 from supabase import create_client, Client
-from io import BytesIO
 import os
-import uuid
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,19 +10,15 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
-# 🔥 HARDCODED SUPABASE (KEEPING THIS AS REQUESTED)
 SUPABASE_URL = "https://wjlgoigybdkvloalrqct.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqbGdvaWd5YmRrdmxvYWxycWN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyODYyNzcsImV4cCI6MjA5Mjg2MjI3N30.tBlOO9X0WuTPP4ErJKd4vBvBvlwNTgjFZQPy0xHkXds"
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# ✅ ENV VARIABLES FOR APIs
 client = OpenAI(
     api_key=os.getenv("GROQ_API_KEY"),
     base_url="https://api.groq.com/openai/v1"
 )
-
-gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 
 def is_safe_prompt(text):
@@ -47,7 +39,6 @@ def home():
         return redirect(url_for("login"))
 
     story = None
-    image_paths = []
 
     if request.method == "POST":
         user_prompt = request.form.get("prompt")
@@ -59,12 +50,11 @@ def home():
                 story = generate_story(user_prompt)
 
                 if is_safe_prompt(story):
-                    image_paths = generate_images_from_story(story)
                     save_story(session["user_id"], user_prompt, story)
                 else:
                     story = "Generated story was unsafe."
 
-    return render_template("home.html", story=story, image_paths=image_paths)
+    return render_template("home.html", story=story)
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -167,18 +157,23 @@ def view_story(story_id):
 
     if result.data:
         story = result.data[0]
-        return render_template("story.html", prompt=story["prompt"], story=story["story"])
+        return render_template(
+            "story.html",
+            prompt=story["prompt"],
+            story=story["story"]
+        )
 
     return "Story not found", 404
 
 
 def generate_story(prompt):
-    response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=[
-            {
-                "role": "system",
-                "content": """
+    try:
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {
+                    "role": "system",
+                    "content": """
 You are a creative writer for a general school-appropriate audience.
 
 STRICT SAFETY RULES:
@@ -197,120 +192,34 @@ Resolution:
 
 No extra text outside the story.
 """
-            },
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.8,
-        max_tokens=1200
-    )
+                },
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.8,
+            max_tokens=1200
+        )
 
-    story = response.choices[0].message.content
+        story = response.choices[0].message.content
 
-    if not is_safe_prompt(story):
-        return "Generated story was unsafe."
+        if not is_safe_prompt(story):
+            return "Generated story was unsafe."
 
-    return story
+        return story
 
-
-def generate_images_from_story(story):
-    print("GENERATE IMAGES FUNCTION WAS CALLED")
-
-    image_paths = []
-
-    sections = {
-        "Exposition": "",
-        "Rising Action": "",
-        "Climax": "",
-        "Falling Action": "",
-        "Resolution": ""
-    }
-
-    current_section = None
-
-    for line in story.splitlines():
-        clean_line = line.strip().replace("*", "").replace("#", "")
-
-        if clean_line.startswith("Exposition"):
-            current_section = "Exposition"
-            sections[current_section] += clean_line.replace("Exposition:", "").strip() + " "
-        elif clean_line.startswith("Rising Action"):
-            current_section = "Rising Action"
-            sections[current_section] += clean_line.replace("Rising Action:", "").strip() + " "
-        elif clean_line.startswith("Climax"):
-            current_section = "Climax"
-            sections[current_section] += clean_line.replace("Climax:", "").strip() + " "
-        elif clean_line.startswith("Falling Action"):
-            current_section = "Falling Action"
-            sections[current_section] += clean_line.replace("Falling Action:", "").strip() + " "
-        elif clean_line.startswith("Resolution"):
-            current_section = "Resolution"
-            sections[current_section] += clean_line.replace("Resolution:", "").strip() + " "
-        elif current_section:
-            sections[current_section] += clean_line + " "
-
-    for label, paragraph in sections.items():
-        paragraph = paragraph.strip()
-
-        if not paragraph:
-            print(f"SKIPPING {label}: no paragraph found")
-            continue
-
-        print(f"CALLING GEMINI FOR {label}")
-
-        image_prompt = f"""
-Create a detailed storybook-style image based on this paragraph:
-
-{paragraph}
-
-The image should match the setting, characters, mood, and action of the paragraph.
-Keep the image school-appropriate and PG.
-Do not include words, captions, labels, or text in the image.
-"""
-
-        try:
-            response = gemini_client.models.generate_images(
-                model="imagen-4.0-generate-001",
-                prompt=image_prompt,
-                config=types.GenerateImagesConfig(
-                    number_of_images=1,
-                    aspect_ratio="1:1"
-                )
-            )
-
-            image = response.generated_images[0].image
-
-            image_bytes = BytesIO()
-            image.save(image_bytes, format="PNG")
-            image_bytes = image_bytes.getvalue()
-
-            file_name = f"{label.replace(' ', '_').lower()}_{uuid.uuid4().hex}.png"
-
-            print(f"UPLOADING {label} IMAGE TO SUPABASE")
-
-            supabase.storage.from_("story-images").upload(
-                file_name,
-                image_bytes,
-                {"content-type": "image/png"}
-            )
-
-            public_url = supabase.storage.from_("story-images").get_public_url(file_name)
-
-            print(f"IMAGE UPLOADED: {public_url}")
-
-            image_paths.append(public_url)
-
-        except Exception as e:
-            print(f"ERROR GENERATING IMAGE FOR {label}: {str(e)}")
-
-    return image_paths
+    except Exception as e:
+        print(f"ERROR GENERATING STORY: {str(e)}")
+        return "There was an error generating the story."
 
 
 def save_story(user_id, prompt, story):
-    supabase.table("stories").insert({
-        "user_id": user_id,
-        "prompt": prompt,
-        "story": story
-    }).execute()
+    try:
+        supabase.table("stories").insert({
+            "user_id": user_id,
+            "prompt": prompt,
+            "story": story
+        }).execute()
+    except Exception as e:
+        print(f"ERROR SAVING STORY: {str(e)}")
 
 
 if __name__ == "__main__":
