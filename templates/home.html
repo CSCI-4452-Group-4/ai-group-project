@@ -5,14 +5,22 @@
 
 <form method="POST">
     <label for="prompt">Enter your story idea:</label><br>
-    <textarea id="prompt" name="prompt" rows="5" cols="60" required></textarea><br><br>
-
+    <textarea name="prompt" id="prompt" rows="5" cols="60" required></textarea><br><br>
     <button type="submit">Generate Story</button>
 </form>
 
 {% if story %}
-    <h2>Your Story</h2>
+    <h2>Generated Story</h2>
     <p style="white-space: pre-wrap;">{{ story }}</p>
+{% endif %}
+
+{% if image_paths %}
+    <h2>Generated Images</h2>
+
+    {% for image in image_paths %}
+        <img src="{{ image }}" width="300" alt="Generated story image">
+        <br><br>
+    {% endfor %}
 {% endif %}
 
 {% endblock %}
